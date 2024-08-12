@@ -1,34 +1,124 @@
-__all__ = ['category_retrieval', 'instance_retrieval_i2t', 'instance_retrieval_t2i']
+import numpy as np
+from typing import Tuple, Optional, Union, List
+from .similarity import compute_similarity
 
 import numpy as np
-from typing import Tuple, Optional, Union
+from typing import Tuple, Optional
 
-def category_retrieval(
-    similarity_matrix: np.ndarray,
-    query_labels: np.ndarray,
-    retrieval_labels: np.ndarray,
-    k: Optional[int] = None
-) -> dict:
+class ImageTextRetrieval:
     """
-    Evaluate category-level retrieval performance using mean Average Precision (mAP).
+    Handles image-text retrieval tasks with automatic alignment detection.
+
+    This class supports various alignment scenarios between image and caption embeddings,
+    including balanced sets, unbalanced sets, and pre-aligned data.
+
+    Attributes:
+        image_embeddings (np.ndarray): Image embedding vectors.
+        caption_embeddings (np.ndarray): Caption embedding vectors.
+        labels (np.ndarray, optional): Labels for category retrieval tasks.
+        img_ratio (int): Ratio of image embeddings to unique images.
+        cap_ratio (int): Ratio of caption embeddings to unique images.
 
     Args:
-        similarity_matrix (np.ndarray): Pre-computed similarity matrix of shape (n_queries, n_retrievals)
-        query_labels (np.ndarray): Query labels with shape (n_queries, n_categories)
-        retrieval_labels (np.ndarray): Retrieval labels with shape (n_retrievals, n_categories)
-        k (int, optional): Number of top-k retrievals to consider for mAP calculation.
-            If None, all retrievals are considered. Default is None.
+        image_embeddings (np.ndarray): Image embedding vectors.
+        caption_embeddings (np.ndarray): Caption embedding vectors.
+        labels (np.ndarray, optional): Labels for category retrieval tasks.
 
-    Returns:
-        dict: A dictionary containing evaluation metrics:
-            - 'mAP': Mean Average Precision score
-            - 'avg_relevant_items': Average number of relevant items per query
-            - 'median_relevant_items': Median number of relevant items per query
+    Note:
+        For detailed information on alignment handling, refer to docs/alignment.md.
     """
+    def __init__(self, image_embeddings: np.ndarray, caption_embeddings: np.ndarray, labels: Optional[np.ndarray] = None):
+        self.image_embeddings = image_embeddings
+        self.caption_embeddings = caption_embeddings
+        self.labels = labels
+        self.aligned_labels = None
+        self.img_indices = np.arange(len(image_embeddings))
+        self.cap_indices = np.arange(len(caption_embeddings))
+
+        if self.labels is not None:
+            self.img_ratio, self.cap_ratio = self._calculate_ratios()
+
+    def prepare_for_category_retrieval(self):
+        """
+        Prepare the instance for category retrieval tasks.
+
+        This method calculates alignment ratios and aligns labels with embeddings.
+
+        Raises:
+            ValueError: If labels are not provided for category retrieval.
+        """
+        if self.labels is None:
+            raise ValueError("Labels are required for category retrieval tasks.")
+        
+        if self.img_ratio is None or self.cap_ratio is None:
+            self.img_ratio, self.cap_ratio = self._calculate_ratios()
+        
+        self.aligned_labels = self._align_labels()
+
+    def _calculate_ratios(self) -> Tuple[int, int]:
+        """
+        Calculate alignment ratios between embeddings and labels.
+
+        Returns:
+            Tuple[int, int]: Image ratio and caption ratio.
+
+        Raises:
+            NotImplementedError: If non-integer ratios are detected.
+        """
+        n_images, n_captions, n_labels = len(self.image_embeddings), len(self.caption_embeddings), len(self.labels)
+        
+        img_ratio = n_images // n_labels
+        cap_ratio = n_captions // n_labels
+
+        if n_images % n_labels != 0 or n_captions % n_labels != 0:
+            print(f"Warning: Non-integer ratios detected. img_ratio: {n_images/n_labels}, cap_ratio: {n_captions/n_labels}")
+            print(f"Rounding down to img_ratio: {img_ratio}, cap_ratio: {cap_ratio}")
+
+        return img_ratio, cap_ratio
+
+
+    def _align_labels(self) -> np.ndarray:
+        return np.repeat(self.labels, self.img_ratio, axis=0)
+
+    def compute_similarity(self, measure: str = 'cosine') -> np.ndarray:
+        from .similarity import compute_similarity
+        return compute_similarity(self.image_embeddings, self.caption_embeddings, measure)
+
+    def get_alignment_info(self) -> dict:
+        """
+        Get information about the current alignment.
+
+        Returns:
+            dict: A dictionary containing alignment information.
+        """
+        info = {
+            "n_image_embeddings": len(self.image_embeddings),
+            "n_caption_embeddings": len(self.caption_embeddings),
+        }
+        if self.labels is not None:
+            info.update({
+                "n_labels": len(self.labels),
+                "image_ratio": self.img_ratio,
+                "caption_ratio": self.cap_ratio,
+            })
+        return info
+
+def category_retrieval(
+    retriever: ImageTextRetrieval,
+    k: Optional[int] = None
+) -> dict:
+    retriever.prepare_for_category_retrieval()
+    similarity_matrix = retriever.compute_similarity()
     n_queries, n_retrievals = similarity_matrix.shape
 
-    if n_queries != query_labels.shape[0] or n_retrievals != retrieval_labels.shape[0]:
-        raise ValueError("Mismatch between similarity matrix shape and label counts")
+    alignment_info = retriever.get_alignment_info()
+    print(f"Alignment info: {alignment_info}")
+
+    aligned_query_labels = retriever.aligned_labels
+    aligned_retrieval_labels = np.repeat(retriever.labels, retriever.cap_ratio, axis=0)
+
+    if n_queries != len(aligned_query_labels) or n_retrievals != len(aligned_retrieval_labels):
+        raise ValueError(f"Mismatch between similarity matrix shape {similarity_matrix.shape} and aligned label counts ({len(aligned_query_labels)}, {len(aligned_retrieval_labels)})")
 
     k = k or n_retrievals
     sorted_indices = np.argsort(-similarity_matrix, axis=1)
@@ -37,8 +127,8 @@ def category_retrieval(
     relevant_num_list = []
 
     for i in range(n_queries):
-        current_query_labels = query_labels[i]
-        retrieved_labels = retrieval_labels[sorted_indices[i, :k]]
+        current_query_labels = aligned_query_labels[i]
+        retrieved_labels = aligned_retrieval_labels[sorted_indices[i, :k]]
         
         relevant = np.any(np.logical_and(retrieved_labels, current_query_labels), axis=1)
         relevant_indices = np.where(relevant)[0]
@@ -61,98 +151,38 @@ def category_retrieval(
         'median_relevant_items': median_relevant_num
     }
 
-def instance_retrieval_i2t(
-    similarity_matrix: np.ndarray,
-    n_captions_per_image: int = 5,
-    return_ranks: bool = False
-) -> Union[Tuple[float, float, float, float, float], Tuple[Tuple[float, float, float, float, float], Tuple[np.ndarray, np.ndarray]]]:
-    """
-    Evaluate instance-level image-to-text retrieval performance.
-
-    Args:
-        similarity_matrix (np.ndarray): Pre-computed similarity matrix of shape (n_images, n_captions)
-        n_captions_per_image (int): Number of captions per image. Default is 5.
-        return_ranks (bool): If True, return ranks and top1 indices along with metrics. Default is False.
-
-    Returns:
-        If return_ranks is False:
-            Tuple[float, float, float, float, float]: (R@1, R@5, R@10, median rank, mean rank)
-        If return_ranks is True:
-            Tuple[Tuple[float, float, float, float, float], Tuple[np.ndarray, np.ndarray]]:
-                ((R@1, R@5, R@10, median rank, mean rank), (ranks, top1))
-    """
-    n_images = similarity_matrix.shape[0]
-    n_captions = similarity_matrix.shape[1]
+def instance_retrieval_i2t(retriever: ImageTextRetrieval) -> Tuple[float, float, float, float, float]:
+    similarity_matrix = retriever.compute_similarity()
+    n_images = len(retriever.image_embeddings)
+    n_captions = len(retriever.caption_embeddings)
     
-    if n_images * n_captions_per_image != n_captions:
-        raise ValueError("Mismatch between number of images and captions")
-
     ranks = np.zeros(n_images)
-    top1 = np.zeros(n_images)
-
     for i in range(n_images):
-        d = similarity_matrix[i]
-        inds = np.argsort(d)[::-1]
-        rank = min(np.where(inds == j)[0][0] for j in range(i*n_captions_per_image, (i+1)*n_captions_per_image))
-        
-        ranks[i] = rank
-        top1[i] = inds[0]
+        inds = np.argsort(similarity_matrix[i])[::-1]
+        ranks[i] = np.where(inds == i)[0][0]
 
-    # Compute metrics
     r1 = 100.0 * len(np.where(ranks < 1)[0]) / len(ranks)
     r5 = 100.0 * len(np.where(ranks < 5)[0]) / len(ranks)
     r10 = 100.0 * len(np.where(ranks < 10)[0]) / len(ranks)
     medr = np.floor(np.median(ranks)) + 1
     meanr = ranks.mean() + 1
 
-    if return_ranks:
-        return (r1, r5, r10, medr, meanr), (ranks, top1)
-    else:
-        return (r1, r5, r10, medr, meanr)
+    return (r1, r5, r10, medr, meanr)
 
-def instance_retrieval_t2i(
-    similarity_matrix: np.ndarray,
-    n_captions_per_image: int = 5,
-    return_ranks: bool = False
-) -> Union[Tuple[float, float, float, float, float], Tuple[Tuple[float, float, float, float, float], Tuple[np.ndarray, np.ndarray]]]:
-    """
-    Evaluate instance-level text-to-image retrieval performance.
-
-    Args:
-        similarity_matrix (np.ndarray): Pre-computed similarity matrix of shape (n_captions, n_images)
-        n_captions_per_image (int): Number of captions per image. Default is 5.
-        return_ranks (bool): If True, return ranks and top1 indices along with metrics. Default is False.
-
-    Returns:
-        If return_ranks is False:
-            Tuple[float, float, float, float, float]: (R@1, R@5, R@10, median rank, mean rank)
-        If return_ranks is True:
-            Tuple[Tuple[float, float, float, float, float], Tuple[np.ndarray, np.ndarray]]:
-                ((R@1, R@5, R@10, median rank, mean rank), (ranks, top1))
-    """
-    n_captions, n_images = similarity_matrix.shape
+def instance_retrieval_t2i(retriever: ImageTextRetrieval) -> Tuple[float, float, float, float, float]:
+    similarity_matrix = retriever.compute_similarity()
+    n_images = len(retriever.image_embeddings)
+    n_captions = len(retriever.caption_embeddings)
     
-    if n_images * n_captions_per_image != n_captions:
-        raise ValueError("Mismatch between number of images and captions")
+    ranks = np.zeros(n_captions)
+    for i in range(n_captions):
+        inds = np.argsort(similarity_matrix[:, i])[::-1]
+        ranks[i] = np.where(inds == i % n_images)[0][0]
 
-    n_queries = n_captions
-    ranks = np.zeros(n_queries)
-    top1 = np.zeros(n_queries)
-
-    for i in range(n_queries):
-        d = similarity_matrix[i]
-        inds = np.argsort(d)[::-1]
-        ranks[i] = np.where(inds == i // n_captions_per_image)[0][0]
-        top1[i] = inds[0]
-
-    # Compute metrics
     r1 = 100.0 * len(np.where(ranks < 1)[0]) / len(ranks)
     r5 = 100.0 * len(np.where(ranks < 5)[0]) / len(ranks)
     r10 = 100.0 * len(np.where(ranks < 10)[0]) / len(ranks)
     medr = np.floor(np.median(ranks)) + 1
     meanr = ranks.mean() + 1
 
-    if return_ranks:
-        return (r1, r5, r10, medr, meanr), (ranks, top1)
-    else:
-        return (r1, r5, r10, medr, meanr)
+    return (r1, r5, r10, medr, meanr)

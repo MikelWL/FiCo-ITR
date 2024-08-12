@@ -1,17 +1,14 @@
-# tests/test_fico_itr.py
-
 import sys
 import os
 import pytest
 import numpy as np
 
 # Add the src directory to the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src/fico_itr')))
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
-from similarity import compute_similarity
-from tasks import category_retrieval, instance_retrieval_i2t, instance_retrieval_t2i
-from test_utils import load_categories
+from fico_itr.tasks import ImageTextRetrieval, category_retrieval, instance_retrieval_i2t, instance_retrieval_t2i
+from fico_itr.similarity import compute_similarity
+from .test_utils import load_categories
 
 # Fixtures for loading test data
 @pytest.fixture
@@ -36,22 +33,22 @@ def category_labels():
 
 # Test similarity computation
 def test_compute_similarity(fg_img_embs, fg_cap_embs):
-    similarity_matrix = compute_similarity(fg_img_embs, fg_cap_embs, measure='cosine')
-    assert similarity_matrix.shape == (fg_img_embs.shape[0], fg_cap_embs.shape[0]), f"Expected shape {(fg_img_embs.shape[0], fg_cap_embs.shape[0])}, but got {similarity_matrix.shape}"
+    retriever = ImageTextRetrieval(fg_img_embs, fg_cap_embs)
+    similarity_matrix = retriever.compute_similarity(measure='cosine')
+    assert similarity_matrix.shape == (len(retriever.img_indices), len(retriever.cap_indices)), f"Expected shape {(len(retriever.img_indices), len(retriever.cap_indices))}, but got {similarity_matrix.shape}"
     assert np.all(similarity_matrix >= -1) and np.all(similarity_matrix <= 1), "Cosine similarity values should be between -1 and 1"
     print(f"Similarity matrix shape: {similarity_matrix.shape}")
     print(f"Similarity matrix range: [{similarity_matrix.min():.4f}, {similarity_matrix.max():.4f}]")
 
 # Test category retrieval
 def test_category_retrieval(cg_img_embs, cg_cap_embs, category_labels):
-    similarity_matrix = compute_similarity(cg_img_embs, cg_cap_embs, measure='cosine')
+    retriever = ImageTextRetrieval(cg_img_embs, cg_cap_embs, category_labels)
     
-    # Use actual category labels
-    img_labels = category_labels[:cg_img_embs.shape[0]]
-    cap_labels = category_labels[:cg_cap_embs.shape[0]]
+    results = category_retrieval(retriever)
     
-    results = category_retrieval(similarity_matrix, img_labels, cap_labels)
-    
+    alignment_info = retriever.get_alignment_info()
+    print(f"Alignment info: {alignment_info}")
+
     assert 'mAP' in results, "mAP not found in results"
     assert 0 <= results['mAP'] <= 1, f"mAP should be between 0 and 1, but got {results['mAP']}"
     print(f"Category Retrieval Results:")
@@ -60,8 +57,8 @@ def test_category_retrieval(cg_img_embs, cg_cap_embs, category_labels):
 
 # Test image-to-text retrieval
 def test_image_to_text_retrieval(fg_img_embs, fg_cap_embs):
-    similarity_matrix = compute_similarity(fg_img_embs, fg_cap_embs, measure='cosine')
-    results = instance_retrieval_i2t(similarity_matrix)
+    retriever = ImageTextRetrieval(fg_img_embs, fg_cap_embs)
+    results = instance_retrieval_i2t(retriever)
     
     assert len(results) == 5, f"Expected 5 results, but got {len(results)}"
     assert all(0 <= r <= 100 for r in results[:3]), f"R@1, R@5, R@10 should be percentages, but got {results[:3]}"
@@ -69,10 +66,9 @@ def test_image_to_text_retrieval(fg_img_embs, fg_cap_embs):
     print(f"  R@1: {results[0]:.2f}%, R@5: {results[1]:.2f}%, R@10: {results[2]:.2f}%")
     print(f"  Median rank: {results[3]:.2f}, Mean rank: {results[4]:.2f}")
 
-# Test text-to-image retrieval
 def test_text_to_image_retrieval(fg_img_embs, fg_cap_embs):
-    similarity_matrix = compute_similarity(fg_img_embs, fg_cap_embs, measure='cosine')
-    results = instance_retrieval_t2i(similarity_matrix.T)  # Note the transpose
+    retriever = ImageTextRetrieval(fg_img_embs, fg_cap_embs)
+    results = instance_retrieval_t2i(retriever)
     
     assert len(results) == 5, f"Expected 5 results, but got {len(results)}"
     assert all(0 <= r <= 100 for r in results[:3]), f"R@1, R@5, R@10 should be percentages, but got {results[:3]}"
@@ -83,16 +79,19 @@ def test_text_to_image_retrieval(fg_img_embs, fg_cap_embs):
 # Test different similarity measures
 @pytest.mark.parametrize("measure", ['cosine', 'euclidean', 'inner_product'])
 def test_similarity_measures(fg_img_embs, fg_cap_embs, measure):
-    similarity_matrix = compute_similarity(fg_img_embs, fg_cap_embs, measure=measure)
-    assert similarity_matrix.shape == (fg_img_embs.shape[0], fg_cap_embs.shape[0]), f"Expected shape {(fg_img_embs.shape[0], fg_cap_embs.shape[0])}, but got {similarity_matrix.shape}"
+    retriever = ImageTextRetrieval(fg_img_embs, fg_cap_embs)
+    similarity_matrix = retriever.compute_similarity(measure=measure)
+    assert similarity_matrix.shape == (len(retriever.img_indices), len(retriever.cap_indices)), f"Expected shape {(len(retriever.img_indices), len(retriever.cap_indices))}, but got {similarity_matrix.shape}"
     print(f"{measure.capitalize()} similarity matrix shape: {similarity_matrix.shape}")
     print(f"{measure.capitalize()} similarity matrix range: [{similarity_matrix.min():.4f}, {similarity_matrix.max():.4f}]")
 
 # Test error handling
 def test_invalid_similarity_measure():
+    retriever = ImageTextRetrieval(np.array([[1, 2]]), np.array([[3, 4]]))
     with pytest.raises(ValueError, match="Invalid similarity measure: invalid_measure"):
-        compute_similarity(np.array([[1, 2]]), np.array([[3, 4]]), measure='invalid_measure')
+        retriever.compute_similarity(measure='invalid_measure')
 
 def test_mismatched_dimensions():
-    with pytest.raises(ValueError, match="Mismatch between similarity matrix shape and label counts"):
-        category_retrieval(np.random.rand(10, 10), np.random.rand(10, 5), np.random.rand(15, 5))
+    with pytest.raises(ValueError, match="Labels are required for category retrieval tasks."):
+        retriever = ImageTextRetrieval(np.random.rand(10, 5), np.random.rand(10, 5))
+        category_retrieval(retriever)

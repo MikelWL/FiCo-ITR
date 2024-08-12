@@ -1,12 +1,8 @@
-[
-build-system
-]
+[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[
-project
-]
+[project]
 name = "fico_itr"
 version = "0.1.0"
 description = "A comprehensive library for evaluating image-text retrieval models"
@@ -20,14 +16,10 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-[
-project.urls
-]
+[project.urls]
 "Homepage" = "https://github.com/yourusername/fico_itr"
 "Bug Tracker" = "https://github.com/yourusername/fico_itr/issues"
 
-[
-tool.setuptools.packages.find
-]
+[tool.setuptools.packages.find]
 where = ["src"]
 include = ["fico_itr*"]

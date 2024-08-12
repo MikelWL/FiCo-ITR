@@ -98,3 +98,4 @@ tests/test_data/cg_cap_embs_f30k.npy
 tests/test_data/cg_img_embs_f30k.npy
 tests/test_data/fg_cap_embs_f30k.npy
 tests/test_data/fg_img_embs_f30k.npy
+tests/test_data/flickr30k-karpathy-test-lall.mat
