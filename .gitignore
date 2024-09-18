@@ -185,3 +185,5 @@ paper_tutorial/results_data/xvlm(nf)_f30k_sim.npy
 paper_tutorial/debug_demo.py
 paper_tutorial/debug_results.json
 paper_tutorial/fico_itr.yml
+paper_tutorial/demo_synth.py
+paper_tutorial/demo_light_vsrn.py
