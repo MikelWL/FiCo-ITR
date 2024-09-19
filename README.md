@@ -69,7 +69,7 @@ FiCo-ITR is released under the MIT License. See the [LICENSE](LICENSE) file for 
 If you use FiCo-ITR in your research, please cite our paper:
 
 ```
-[Citation details will be added upon paper acceptance]
+https://doi.org/10.48550/arXiv.2407.20114
 ```
 
 ## Contact

@@ -65,5 +65,5 @@ You can modify the `demo.py` script to work with different models or datasets by
 If you use this demo or the FiCo-ITR library in your research, please cite our paper:
 
 ```
-[Citation details will be added upon paper acceptance]
+https://doi.org/10.48550/arXiv.2407.20114
 ```

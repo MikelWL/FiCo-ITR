@@ -1,5 +1,132 @@
+# Include all Python source files
+recursive-include src *.py
+
+# Include the license file
 include LICENSE
+
+# Include the README
 include README.md
-recursive-include src/fico_itr *
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
+
+# Exclude byte-compiled / optimized / DLL files
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *$py.class
+
+# Exclude C extensions
+global-exclude *.so
+
+# Exclude distribution / packaging
+exclude build
+exclude develop-eggs
+exclude dist
+exclude downloads
+exclude eggs
+exclude .eggs
+exclude lib
+exclude lib64
+exclude parts
+exclude sdist
+exclude var
+exclude wheels
+exclude share/python-wheels
+exclude *.egg-info
+exclude .installed.cfg
+exclude *.egg
+exclude MANIFEST
+
+# Exclude PyInstaller
+exclude *.manifest
+exclude *.spec
+
+# Exclude installer logs
+exclude pip-log.txt
+exclude pip-delete-this-directory.txt
+
+# Exclude unit test / coverage reports
+recursive-exclude htmlcov *
+exclude .tox
+exclude .nox
+exclude .coverage
+exclude .coverage.*
+exclude .cache
+exclude nosetests.xml
+exclude coverage.xml
+exclude *.cover
+exclude *.py,cover
+exclude .hypothesis
+exclude .pytest_cache
+recursive-exclude cover *
+
+# Exclude Jupyter Notebook
+global-exclude .ipynb_checkpoints
+
+# Exclude IPython
+exclude profile_default
+exclude ipython_config.py
+
+# Exclude pyenv
+exclude .python-version
+
+# Exclude environments
+exclude .env
+exclude .venv
+recursive-exclude env *
+recursive-exclude venv *
+recursive-exclude ENV *
+exclude env.bak
+exclude venv.bak
+
+# Exclude Spyder project settings
+exclude .spyderproject
+exclude .spyproject
+
+# Exclude Rope project settings
+exclude .ropeproject
+
+# Exclude mkdocs documentation
+recursive-exclude site *
+
+# Exclude mypy
+recursive-exclude .mypy_cache *
+exclude .dmypy.json
+exclude dmypy.json
+
+# Exclude Pyre type checker
+recursive-exclude .pyre *
+
+# Exclude pytype static type analyzer
+recursive-exclude .pytype *
+
+# Exclude Cython debug symbols
+recursive-exclude cython_debug *
+
+# Exclude VSCode
+recursive-exclude .vscode *
+
+# Exclude specific test data files
+exclude tests/test_data/cg_cap_embs_f30k.npy
+exclude tests/test_data/cg_img_embs_f30k.npy
+exclude tests/test_data/fg_cap_embs_f30k.npy
+exclude tests/test_data/fg_img_embs_f30k.npy
+exclude tests/test_data/flickr30k-karpathy-test-lall.mat
+
+# Exclude paper results data
+recursive-exclude paper/results_data *
+recursive-exclude paper_tutorial/results_data *
+
+# Exclude specific scripts and files
+exclude mwl_eval.py
+exclude reference_eval.py
+exclude paper/debug_demo.py
+exclude paper/debug_results.json
+exclude paper/fico_itr.yml
+exclude paper_tutorial/debug_demo.py
+exclude paper_tutorial/debug_results.json
+exclude paper_tutorial/fico_itr.yml
+exclude paper_tutorial/demo_synth.py
+exclude paper_tutorial/demo_light_vsrn.py
+
+# Exclude test files
+exclude tests/test_fico_itr.py
+exclude tests/test_utils.py
+exclude tests/__init__.py
