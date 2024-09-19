@@ -187,3 +187,5 @@ paper_tutorial/debug_results.json
 paper_tutorial/fico_itr.yml
 paper_tutorial/demo_synth.py
 paper_tutorial/demo_light_vsrn.py
+tests/test_fico_itr.py
+tests/test_utils.py
