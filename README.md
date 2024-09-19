@@ -16,8 +16,8 @@ pip install fico_itr
 
 FiCo-ITR requires the following Python libraries:
 
-- numpy >= 1.19.0
-- h5py >= 3.1.0
+- numpy
+- scipy (If loading embeddings for demo)
 
 These dependencies will be automatically installed when you install FiCo-ITR using pip.
 
@@ -28,10 +28,13 @@ Here's a simple example of how to use FiCo-ITR:
 ```python
 import numpy as np
 from fico_itr import compute_similarity, category_retrieval, instance_retrieval
+from scipy import io
 
 # Load your image and text embeddings. Alternatively, directly use those produced by model
-image_embeddings = np.load('path_to_image_embeddings.npy')
-text_embeddings = np.load('path_to_text_embeddings.npy')
+image_embeddings = np.load('results_data/vsrn_f30k_img.npy')
+text_embeddings = np.load('results_data/vsrn_f30k_txt.npy')
+mat_data = io.loadmat('results_data/flickr30k-karpathy-test-lall.mat')
+labels = mat_data['LAll']
 
 # Compute similarity matrix
 similarity_matrix = compute_similarity(image_embeddings, text_embeddings, measure='cosine')
