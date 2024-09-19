@@ -1,10 +1,7 @@
 __all__ = ['compute_similarity']
 
 import numpy as np
-# TODO: Uncomment these as they were added in Python 3.8
-# from typing import Union, Literal
-from typing import Union
-from typing_extensions import Literal
+from typing import Union, Literal
 
 def compute_similarity(
     x: np.ndarray,

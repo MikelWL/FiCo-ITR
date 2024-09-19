@@ -25,7 +25,7 @@ This demo serves as an example usage of the FiCo-ITR (Fine-grained and Coarse-gr
 
 2. Download the pre-computed embeddings:
 
-   [Download pre-computed embeddings](INSERT_DOWNLOAD_LINK_HERE)
+   [Download pre-computed embeddings](https://drive.google.com/drive/folders/1r2allfSdV1K8s-e4tukjLQA42zlEK46j?usp=drive_link)
 
    Extract the downloaded files into the `results_data` directory.
 
@@ -39,10 +39,8 @@ python demo.py
 
 This script will:
 
-1. Load pre-computed embeddings for the VSRN model on the Flickr30K dataset.
-2. Run the original VSRN evaluation code to establish baseline results.
-3. Use the FiCo-ITR library to compute similarity and perform retrieval tasks.
-4. Display results for both methods, allowing for easy comparison.
+1. Load pre-computed embeddings and similarity matrices for the models which were evaluated in the paper for both Flickr30K and MS-COCO.
+2. Use the FiCo-ITR library to compute similarity and perform retrieval tasks.
 
 ## Output
 
@@ -54,21 +52,13 @@ The demo will output results for:
 2. Category-level retrieval:
    - Mean Average Precision (mAP)
 
-Results will be displayed for both the original VSRN evaluation and the FiCo-ITR implementation.
-
 ## Customization
 
 You can modify the `demo.py` script to work with different models or datasets by changing the data loading functions and file paths.
 
-## Troubleshooting
+## Known WIP issues towards full implemenation
 
-If you encounter any issues or discrepancies in the results, please check:
-
-1. Ensure you have downloaded the correct pre-computed embeddings.
-2. Verify that the embeddings are placed in the correct directory.
-3. Check that you're using the latest version of the FiCo-ITR library.
-
-For further assistance, please open an issue on the FiCo-ITR GitHub repository.
+ - Pre-computed asymmetric matrices not yet supported (e.g. XVLM(nf)). These cases are handled via exception and will be addressed in the full implementation.
 
 ## Citation
 
