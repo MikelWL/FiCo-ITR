@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import json
-import hdf5storage
+from scipy import io
 from pathlib import Path
 from fico_itr.similarity import compute_similarity
 from fico_itr.tasks import category_retrieval, instance_retrieval
@@ -35,7 +35,7 @@ def load_labels(dataset):
     if not file_path.exists():
         raise FileNotFoundError(f"Label file not found: {file_path}")
 
-    mat_data = hdf5storage.loadmat(str(file_path))
+    mat_data = io.loadmat('results_data/flickr30k-karpathy-test-lall.mat')
     return mat_data['LAll']
 
 def is_precomputed_similarity(model):
