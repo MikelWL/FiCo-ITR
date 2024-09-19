@@ -189,3 +189,4 @@ paper_tutorial/demo_synth.py
 paper_tutorial/demo_light_vsrn.py
 tests/test_fico_itr.py
 tests/test_utils.py
+tests/__init__.py
