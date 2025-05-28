@@ -1,11 +1,12 @@
-# Include all Python source files
-recursive-include src *.py
-
-# Include the license file
+# Include documentation
+include README.md
 include LICENSE
 
-# Include the README
-include README.md
+# Include package data
+recursive-include src *.py
+
+# Include type information
+recursive-include src py.typed
 
 # Exclude byte-compiled / optimized / DLL files
 global-exclude __pycache__

@@ -190,3 +190,6 @@ paper_tutorial/demo_light_vsrn.py
 tests/test_fico_itr.py
 tests/test_utils.py
 tests/__init__.py
+paper_tutorial/results_data/coco-karpathy-testall-labels.npy
+paper_tutorial/results_data/mscoco_test_indices.npy
+paper_tutorial/results_data/flickr30k-karpathy-test-labels.npy

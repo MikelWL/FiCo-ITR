@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import json
-from scipy import io
 from pathlib import Path
 from fico_itr.similarity import compute_similarity
 from fico_itr.tasks import category_retrieval, instance_retrieval
@@ -23,11 +22,11 @@ def load_data(model, dataset, modality=None):
     return np.load(file_path)
 
 def load_labels(dataset):
-    """Load category labels from .mat file."""
+    """Load category labels from .npy file."""
     if dataset == 'f30k':
-        file_name = "flickr30k-karpathy-test-lall.mat"
+        file_name = "flickr30k-karpathy-test-labels.npy"
     elif dataset == 'coco':
-        file_name = "coco-karpathy-testall-lall.mat"
+        file_name = "coco-karpathy-testall-labels.npy"
     else:
         raise ValueError(f"Unsupported dataset: {dataset}")
 
@@ -35,8 +34,7 @@ def load_labels(dataset):
     if not file_path.exists():
         raise FileNotFoundError(f"Label file not found: {file_path}")
 
-    mat_data = io.loadmat('results_data/flickr30k-karpathy-test-lall.mat')
-    return mat_data['LAll']
+    return np.load(file_path)
 
 def is_precomputed_similarity(model):
     """Determine if the model uses pre-computed similarity matrices."""
@@ -44,6 +42,20 @@ def is_precomputed_similarity(model):
 
 def run_demo(model, dataset, labels):
     print(f"Running demo for {model} on {dataset}")
+
+    # Determine caption distribution for this dataset
+    if dataset == 'coco' and model in ['beit3', 'xvlm(nf)', 'xvlm', 'blip2']:
+        # Load caption-to-image indices for models with 25010 captions
+        captions_per_image = np.load('./results_data/mscoco_test_indices.npy').tolist()
+    elif dataset == 'coco':
+        # COCO standard: most models use 25000 captions (5 per image)
+        captions_per_image = 5
+    elif dataset == 'f30k':
+        # Flickr30k has exactly 5 captions per image
+        captions_per_image = 5
+    else:
+        # Auto-detect for unknown datasets
+        captions_per_image = 'auto'
 
     if is_precomputed_similarity(model):
         # Load pre-computed similarity matrix
@@ -58,14 +70,20 @@ def run_demo(model, dataset, labels):
         # Load separate embeddings and compute similarity
         img_embs = load_data(model, dataset, 'img')
         txt_embs = load_data(model, dataset, 'txt')
-        print("Computing similarity matrix...")
         similarity_matrix = compute_similarity(img_embs, txt_embs, measure='cosine')
+        
+        # Note: Square matrices (vsrn/ucch) still use original caption ratios
+        # to preserve ground truth relationships
 
     print("Performing instance-level retrieval...")
     if model in ['blip2', 'xvlm']: # Models with task-specific matrices
-        i2t_instance_results, t2i_instance_results = instance_retrieval(sim_i2t, sim_t2i)
+        i2t_instance_results, t2i_instance_results = instance_retrieval(
+            sim_i2t, sim_t2i, captions_per_image=captions_per_image
+        )
     else:
-        i2t_instance_results, t2i_instance_results = instance_retrieval(similarity_matrix)
+        i2t_instance_results, t2i_instance_results = instance_retrieval(
+            similarity_matrix, captions_per_image=captions_per_image
+        )
 
     print("Instance-level Retrieval Results:")
     print("Image-to-Text:")
@@ -77,9 +95,13 @@ def run_demo(model, dataset, labels):
 
     print("Performing category-level retrieval...")
     if model in ['blip2', 'xvlm']: # Models with task-specific matrices
-        i2t_catategory_results, t2i_catategory_results = category_retrieval(sim_i2t, labels, sim2 = sim_t2i)
+        i2t_catategory_results, t2i_catategory_results = category_retrieval(
+            sim_i2t, labels, sim2=sim_t2i, captions_per_image=captions_per_image
+        )
     else:
-        i2t_catategory_results, t2i_catategory_results = category_retrieval(similarity_matrix, labels)
+        i2t_catategory_results, t2i_catategory_results = category_retrieval(
+            similarity_matrix, labels, captions_per_image=captions_per_image
+        )
     
     print("Category-level Retrieval Results:")
     print(f"Image-to-Text:{i2t_catategory_results}")

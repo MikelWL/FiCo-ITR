@@ -1,5 +1,7 @@
-# Data Directory
+### Download Pre-computed Data
 
-This directory is intended to hold the precomputed embeddings and similarity matrices to demo FiCo-ITR and as a shorthand to reproduce the results on the paper.
+Download the pre-computed embeddings, similarity matrices, labels and image-caption mappings:
 
-Please download the required data files from [link to download page] and place them in this directory.
+**[📥 Download from Google Drive](https://drive.google.com/drive/folders/1r2allfSdV1K8s-e4tukjLQA42zlEK46j?usp=drive_link)**
+
+Extract all `.npy` files into this directory.

@@ -1,67 +1,64 @@
-# Similarity Measures in FiCo-ITR
+# Similarity Measures in FiCo-ITR v1.0.0
 
 ## Overview
 
-The `compute_similarity` function in FiCo-ITR provides efficient implementations of four similarity measures commonly used in image-text retrieval tasks: cosine similarity, Euclidean similarity, Hamming similarity, and inner product. This document outlines the considerations, implementation details, and usage guidelines for these similarity measures.
+The `compute_similarity` function implements four similarity measures for image-text retrieval evaluation.
 
 ## Implemented Measures
 
 ### 1. Cosine Similarity
-
-- **Formula**: cos(θ) = (x · y) / (||x|| * ||y||)
+**Formula**: `cos(θ) = (x · y) / (||x|| * ||y||)`
 - **Range**: [-1, 1]
-- **Interpretation**: 1 indicates maximum similarity, -1 indicates maximum dissimilarity, 0 indicates orthogonality
-- **Implementation Notes**: 
-  - Vectors are normalized before dot product for numerical stability
-  - Efficient for high-dimensional sparse data
+- **Implementation**: Normalizes vectors before dot product
+- **Use case**: Standard for normalized embeddings
 
 ### 2. Euclidean Similarity
-
-- **Formula**: similarity = 1 / (1 + sqrt(Σ(x_i - y_i)^2))
+**Formula**: `similarity = 1 / (1 + sqrt(Σ(x_i - y_i)²) + ε)`
 - **Range**: (0, 1]
-- **Interpretation**: 1 indicates identical vectors, values close to 0 indicate high dissimilarity
-- **Implementation Notes**:
-  - Computed using an optimised formula to avoid explicit pairwise distances
-  - A small epsilon (1e-8) is added to prevent division by zero
-  - Transformed from distance to similarity for consistency with other measures
+- **Implementation**: Uses expansion `||x-y||² = ||x||² + ||y||² - 2x·y` to avoid explicit difference computation
+- **Numerical stability**: `np.maximum(distances, 0)` handles floating point errors; epsilon (1e-8) prevents division by zero
 
 ### 3. Hamming Similarity
-
-- **Formula**: similarity = -(number of differing bits) / (total number of bits)
+**Formula**: `similarity = -(number of differing elements) / (vector length)`
 - **Range**: [-1, 0]
-- **Interpretation**: 0 indicates identical bit strings, -1 indicates completely different bit strings
-- **Implementation Notes**:
-  - Assumes binary input vectors (0s and 1s)
-  - Efficient for comparing binary feature vectors or hash codes
+- **Implementation**: Element-wise comparison, normalized by vector length
+- **Use case**: Binary or discrete feature vectors
 
 ### 4. Inner Product
-
-- **Formula**: x · y
+**Formula**: `similarity = Σ(x_i * y_i)`
 - **Range**: Unbounded
-- **Interpretation**: Higher values indicate more similarity
-- **Implementation Notes**:
-  - Simple dot product, efficient for dense vectors
+- **Implementation**: Direct matrix multiplication
+- **Use case**: When vector magnitudes are meaningful
 
-## Performance Considerations
+## Implementation Details
 
-1. **Memory Efficiency**: 
-   - The implementations avoid creating large intermediate arrays where possible
+The function signature:
+```python
+def compute_similarity(
+    x: np.ndarray,
+    y: np.ndarray,
+    measure: Literal['cosine', 'euclidean', 'hamming', 'inner_product'] = 'cosine'
+) -> np.ndarray
+```
 
-3. **Vectorisation**:
-   - All implementations leverage NumPy's vectorised operations for efficiency
+**Input**: 
+- `x`: Shape (n, d) - First set of vectors
+- `y`: Shape (m, d) - Second set of vectors
+- `measure`: Similarity measure to use
 
-5. **Extremely large datasets**:
-    - This implementation, although optimised, may not be the fastest for very large datasets.
-    - For very large datasets, consider using a more efficient implementation based on FAISS or other such similarity search-centric libraries. This implementation is intended to enable typical benchmarking scenarios.
+**Output**: Similarity matrix of shape (n, m)
 
-## Usage Guidelines
+## Computational Complexity
 
-1. **Choosing a Similarity Measure**:
-   - Cosine similarity is often preferred for text and image embeddings
-   - Euclidean similarity is useful when the magnitude of vectors is important
-   - Hamming similarity is ideal for binary feature vectors or hash codes
-   - Inner product can be used when vector magnitudes are pre-normalized or irrelevant
+All measures have O(n×m×d) time complexity where:
+- n = number of vectors in x
+- m = number of vectors in y  
+- d = dimensionality
 
-2. **Input Preprocessing**:
-   - Ensure input vectors are of the same dimensionality
-   - For Hamming similarity, input vectors should be binary (0s and 1s)
+Cosine and Euclidean have additional O(n×d) and O(m×d) operations for normalization/magnitude computation.
+
+## Notes
+
+- For very large (>1M comparisons), specialized libraries like FAISS may be more appropriate
+- The implementation prioritizes correctness of task implementation and ease of use over maximum performance
+- All measures return higher values for more similar vectors (Hamming uses negative values to maintain this convention)

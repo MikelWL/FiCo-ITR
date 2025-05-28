@@ -5,4 +5,4 @@ from .similarity import compute_similarity
 
 __all__ = ['category_retrieval', 'instance_retrieval', 'compute_similarity']
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"

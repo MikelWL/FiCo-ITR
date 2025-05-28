@@ -1,8 +1,5 @@
 from setuptools import setup, find_packages
 
-setup(
-    name='fico_itr',
-    version='0.1.0',
-    packages=find_packages(where='src'),
-    package_dir={'': 'src'},
-)
+# Minimal setup.py for backwards compatibility
+# All configuration is in setup.cfg and pyproject.toml
+setup()

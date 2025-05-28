@@ -3,22 +3,35 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fico_itr"
-version = "0.1.0"
-description = "A comprehensive library for evaluating image-text retrieval models"
+name = "fico-itr"
+version = "1.0.0"
+description = "Fine-grained and Coarse-grained Image-Text Retrieval Evaluation"
 authors = [{name = "Mikel Williams Lekuona", email = "m.williams@lboro.ac.uk"}]
 license = {file = "LICENSE"}
 readme = "README.md"
 requires-python = ">=3.7"
+keywords = ["image-text-retrieval", "evaluation", "benchmark", "vision-language"]
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy>=1.19.0",
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/MikelWL/FiCo-ITR"
 "Bug Tracker" = "https://github.com/MikelWL/FiCo-ITR/issues"
+"Documentation" = "https://github.com/MikelWL/FiCo-ITR#readme"
 
 [tool.setuptools.packages.find]
 where = ["src"]
