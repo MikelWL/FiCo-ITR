@@ -24,6 +24,12 @@ FiCo-ITR provides a standardized evaluation framework for image-text retrieval m
 - **Zero Configuration** - Works out-of-the-box for most models
 - **Extensible** - Easy to adapt for custom evaluation needs
 
+## 📋 Prerequisites
+
+This is a Python package designed for researchers in image-text retrieval. If you're new to Python development:
+- **Getting Started**: See [Python's official tutorial](https://docs.python.org/3/tutorial/index.html)
+- **Installing Packages**: Learn about [pip and virtual environments](https://packaging.python.org/en/latest/tutorials/installing-packages/)
+
 ## 📦 Installation
 
 ```bash
