@@ -1,11 +1,21 @@
 # FiCo-ITR: Fine-grained and Coarse-grained Image-Text Retrieval
 
 <p align="center">
-  <a href="https://github.com/MikelWL/FiCo-ITR"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.7+-green.svg" alt="Python"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-red.svg" alt="License"></a>
+  <a href="https://link.springer.com/article/10.1007/s13735-025-00368-6">
+    <img src="https://img.shields.io/badge/paper-Springer-blue" alt="Paper">
+  </a>
   <a href="https://colab.research.google.com/github/MikelWL/FiCo-ITR/blob/main/paper_tutorial/FiCo-Tutorial.ipynb">
     <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab">
+  </a>
+  <br>
+  <a href="https://github.com/MikelWL/FiCo-ITR">
+    <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
+  </a>
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/python-3.7+-green.svg" alt="Python">
+  </a>
+  <a href="../../LICENSE">
+    <img src="https://img.shields.io/badge/license-CC%20BY--NC%204.0-red.svg" alt="License">
   </a>
 </p>
 
@@ -139,6 +149,8 @@ If you use FiCo-ITR in your research, please cite:
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/) - see the [LICENSE](LICENSE) file for details.
+
+**Research and educational use only.** Commercial use is prohibited.
 
 *This project includes code generated with the assistance of AI coding tools.*
