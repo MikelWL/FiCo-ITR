@@ -4,6 +4,9 @@
   <a href="https://github.com/MikelWL/FiCo-ITR"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version"></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.7+-green.svg" alt="Python"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-red.svg" alt="License"></a>
+  <a href="https://colab.research.google.com/github/MikelWL/FiCo-ITR/blob/main/paper_tutorial/FiCo-Tutorial.ipynb">
+    <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab">
+  </a>
 </p>
 
 <p align="center">
@@ -23,12 +26,6 @@ FiCo-ITR provides a standardized evaluation framework for image-text retrieval m
 - **Dual Evaluation** - Instance-level and category-level retrieval tasks and metrics
 - **Zero Configuration** - Works out-of-the-box for most models
 - **Extensible** - Easy to adapt for custom evaluation needs
-
-## 📋 Prerequisites
-
-This is a Python package designed for researchers in image-text retrieval. If you're new to Python development:
-- **Getting Started**: See [Python's official tutorial](https://docs.python.org/3/tutorial/index.html)
-- **Installing Packages**: Learn about [pip and virtual environments](https://packaging.python.org/en/latest/tutorials/installing-packages/)
 
 ## 📦 Installation
 
