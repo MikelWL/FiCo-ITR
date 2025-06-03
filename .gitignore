@@ -193,3 +193,4 @@ tests/__init__.py
 paper_tutorial/results_data/coco-karpathy-testall-labels.npy
 paper_tutorial/results_data/mscoco_test_indices.npy
 paper_tutorial/results_data/flickr30k-karpathy-test-labels.npy
+paper_tutorial/demo_data/

@@ -2,6 +2,13 @@
 
 This tutorial demonstrates how to reproduce the results from the FiCo-ITR paper using pre-computed embeddings and similarity matrices.
 
+## 🚀 Interactive Tutorial
+
+Try a streamlined version of this demo on Colab here:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MikelWL/FiCo-ITR/blob/main/paper_tutorial/FiCo-Tutorial.ipynb)
+
+
 ## Overview
 
 This directory contains:

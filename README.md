@@ -38,6 +38,12 @@ pip install fico_itr
 
 ## 🚀 Quick Start
 
+### Option 1: Interactive Tutorial
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MikelWL/FiCo-ITR/blob/main/paper_tutorial/FiCo-Tutorial.ipynb)
+
+**Try FiCo-ITR immediately** in your browser with pre-computed embeddings from 6 models
+
+### Option 2: Local Installation Usage
 ```python
 from fico_itr import instance_retrieval, category_retrieval
 
@@ -110,6 +116,7 @@ results = instance_retrieval(
   - [Similarity](docs/similarity.md) - Available similarity measures  
   - [Tasks](docs/tasks.md) - Evaluation metrics and algorithms
 - [**Paper Tutorial**](paper_tutorial/) - Reproduce paper results with pre-computed embeddings
+- [**🚀 Interactive Tutorial**](https://colab.research.google.com/github/MikelWL/FiCo-ITR/blob/main/paper_tutorial/tutorial.ipynb) - Try FiCo-ITR in your browser (no setup required!)
 
 ## 📋 Requirements
 
